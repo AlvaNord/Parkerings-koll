@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parkeringskollen</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px 20px; background-color: #f4f7f6; color: #333; }
+        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+        h1 { color: #2c3e50; font-size: 1.5em; }
+        button { background-color: #27ae60; color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: transform 0.2s; margin-top: 20px; width: 100%; }
+        button:active { transform: scale(0.95); }
+        #status { margin-top: 30px; font-size: 1.1em; line-height: 1.5; }
+        .ok { color: #27ae60; font-weight: bold; border: 2px solid #27ae60; padding: 10px; border-radius: 10px; }
+        .warning { color: #e74c3c; font-weight: bold; border: 2px solid #e74c3c; padding: 10px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>🅿️ Parkeringskollen</h1>
+        <p>Här kan du snabbt se om det är tillåtet att stå kvar.</p>
+        <button onclick="getLocation()">Kolla min plats</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        function getLocation() {
+            const statusDiv = document.getElementById("status");
+            statusDiv.innerHTML = "🛰️ Söker GPS-kontakt...";
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(checkParking, showError);
+            } else {
+                statusDiv.innerHTML = "❌ Din webbläsare saknar stöd för GPS.";
+            }
+        }
+
+        function checkParking(position) {
+            const now = new Date();
+            const day = now.getDay(); 
+            const hour = now.getHours();
+
+            let message = "";
+            let isAllowed = true;
+
+            // Logik: Exempel på städdag (Måndag kl 08-12)
+            if (day === 1 && hour >= 8 && hour < 12) {
+                isAllowed = false;
+                message = "Nej! Det är städdag just nu (Måndagar 08-12).";
+            } else {
+                message = "Ja! Det ser ut att vara grönt ljus att parkera här nu.";
+            }
+
+            document.getElementById("status").innerHTML = `
+                <div class="${isAllowed ? 'ok' : 'warning'}">
+                    ${message}
+                </div>
+                <p style="font-size: 0.8em; color: #7f8c8d; margin-top: 15px;">
+                    Uppdaterat: ${now.toLocaleTimeString('sv-SE')}
+                </p>
+            `;
+        }
+
+        function showError(error) {
+            document.getElementById("status").innerHTML = "❌ Du måste tillåta platstjänster i webbläsaren för att appen ska fungera.";
+        }
+    </script>
+</body>
+</html>
